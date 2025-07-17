@@ -5,20 +5,25 @@ import pyttsx3
 recognizer = sr.Recognizer()
 engine = pyttsx3.init()
 
-wake_words = ["kairo", "cairo"]  # Accept both
+wake_words = ["kairo", "cairo"]
 
 
 def speak(text):
+    print(f"🗣️ {text}")  # helpful for debugging
     engine.say(text)
     engine.runAndWait()
 
 
 def listen():
     with sr.Microphone() as source:
-        recognizer.adjust_for_ambient_noise(source)
+        recognizer.adjust_for_ambient_noise(source, duration=0.5)
         print("🎤 Listening...")
-        audio = recognizer.listen(source, timeout=None, phrase_time_limit=4)
-    return audio
+        try:
+            audio = recognizer.listen(source, timeout=5, phrase_time_limit=5)
+            return audio
+        except sr.WaitTimeoutError:
+            print("⏰ Timeout: No speech detected.")
+            return None
 
 
 def is_wake_word(text):
@@ -26,20 +31,28 @@ def is_wake_word(text):
 
 
 if __name__ == "__main__":
-    print("Kairo initializing")
+    print("Kairo initializing...")
     speak("Kairo initializing")
 
     while True:
+        audio = listen()
+        if audio is None:
+            speak("Say my name to activate me.")
+            continue
+
         try:
-            audio = listen()
             trigger = recognizer.recognize_google(audio)
             print(f"You said: {trigger}")
 
             if is_wake_word(trigger):
-                speak("Hello, how can I assist you?")
+                speak("I am Kairo, how can I help you?")
+
+                command_audio = listen()
+                if command_audio is None:
+                    speak("Sorry, I didn't hear your command.")
+                    continue
 
                 try:
-                    command_audio = listen()
                     command = recognizer.recognize_google(command_audio)
                     command = command.lower()
                     print(f"Command: {command}")
@@ -63,13 +76,16 @@ if __name__ == "__main__":
                         speak("Sorry, I didn't understand that command.")
 
                 except sr.UnknownValueError:
+                    print("⚠️ Could not understand the command.")
                     speak("Sorry, I didn't catch that.")
+
             else:
-                print("👂 Wake word not detected.")
                 speak("Say my name to activate me.")
 
         except sr.UnknownValueError:
-            print("⚠️ Didn't catch that.")
+            print("⚠️ Could not understand speech.")
             speak("Say my name to activate me.")
+
         except sr.RequestError:
             print("❌ Could not reach Google. Check your internet.")
+            speak("I can't reach Google. Please check your internet.")
