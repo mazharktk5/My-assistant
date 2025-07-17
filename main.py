@@ -10,12 +10,11 @@ try:
     engine = pyttsx3.init()
     voices = engine.getProperty('voices')
 
-    
     engine.setProperty('voice', voices[0].id)
-    engine.setProperty('rate', 180)  
-    print("✅ Speech engine initialized successfully")
+    engine.setProperty('rate', 180)
+    print("Speech engine initialized successfully")
 except Exception as e:
-    print(f"❌ Failed to initialize speech engine: {e}")
+    print(f"Failed to initialize speech engine: {e}")
     sys.exit(1)
 
 recognizer = sr.Recognizer()
@@ -30,15 +29,15 @@ def speak(text):
         engine.stop()
         engine.say(text)
         engine.runAndWait()
-        time.sleep(0.3)  
+        time.sleep(0.3)
     except Exception as e:
-        print(f"❌ Speech error: {e}")
+        print(f"Speech error: {e}")
 
 
 def listen(prompt="🎤 Listening...", timeout=5, phrase_time_limit=5):
     """Improved listening function"""
     with sr.Microphone() as source:
-        print("🔊 Calibrating microphone...")
+        print("Calibrating microphone...")
         recognizer.adjust_for_ambient_noise(source, duration=1)
         print(prompt)
         try:
@@ -46,10 +45,10 @@ def listen(prompt="🎤 Listening...", timeout=5, phrase_time_limit=5):
                 source, timeout=timeout, phrase_time_limit=phrase_time_limit)
             return audio
         except sr.WaitTimeoutError:
-            print("⏰ Timeout: No speech detected.")
+            print("Timeout: No speech detected.")
             return None
         except Exception as e:
-            print(f"❌ Listening error: {e}")
+            print(f" Listening error: {e}")
             return None
 
 
@@ -70,14 +69,14 @@ def close_browser():
                 proc.kill()
                 closed = True
             except Exception as e:
-                print(f"⚠️ Couldn't close {proc.info['name']}: {e}")
+                print(f"Couldn't close {proc.info['name']}: {e}")
     return closed
 
 
 def process_command(command):
     """Process commands with exact matching"""
     command = command.lower()
-    print(f"Processing command: {command}")  
+    print(f"Processing command: {command}")
 
     if "open youtube" in command:
         speak("Opening YouTube")
@@ -109,7 +108,7 @@ def process_command(command):
 
 
 if __name__ == "__main__":
-    print("🚀 Kairo Voice Assistant Initializing...")
+    print("Kairo Voice Assistant Initializing...")
     speak("Kairo is ready. Say my name to activate me.")
 
     while True:
