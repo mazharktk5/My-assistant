@@ -5,40 +5,40 @@ import psutil
 import time
 import sys
 
-# Initialize speech engine with better error handling
+
 try:
     engine = pyttsx3.init()
     voices = engine.getProperty('voices')
-    # Try 0 or 1 for different voices
+
+    
     engine.setProperty('voice', voices[0].id)
-    engine.setProperty('rate', 170)
+    engine.setProperty('rate', 180)  
+    print("✅ Speech engine initialized successfully")
 except Exception as e:
     print(f"❌ Failed to initialize speech engine: {e}")
     sys.exit(1)
 
 recognizer = sr.Recognizer()
-wake_words = ["jarvis", "neo", "kairo", "computer"]
+wake_words = ["jarvis", "neo", "kairo"]
 
 
-def speak(text, wait=True):
-    """Improved speak function with better error handling"""
+def speak(text):
+    """Reliable speaking function"""
     print(f"🗣️ {text}")
     try:
+        # Clear any pending speech commands
+        engine.stop()
         engine.say(text)
-        if wait:
-            engine.runAndWait()
-        else:
-            engine.startLoop(False)
-            engine.iterate()
-            time.sleep(0.1)  # Small delay for non-blocking speech
+        engine.runAndWait()
+        time.sleep(0.3)  
     except Exception as e:
         print(f"❌ Speech error: {e}")
 
 
 def listen(prompt="🎤 Listening...", timeout=5, phrase_time_limit=5):
-    """Enhanced listening function with better mic handling"""
+    """Improved listening function"""
     with sr.Microphone() as source:
-        print("🔊 Adjusting for ambient noise...")
+        print("🔊 Calibrating microphone...")
         recognizer.adjust_for_ambient_noise(source, duration=1)
         print(prompt)
         try:
@@ -54,17 +54,18 @@ def listen(prompt="🎤 Listening...", timeout=5, phrase_time_limit=5):
 
 
 def is_wake_word(text):
-    """Check for wake words with fuzzy matching"""
-    text_lower = text.lower()
-    return any(word in text_lower for word in wake_words)
+    """Check for wake words"""
+    if not text:
+        return False
+    return any(word in text.lower() for word in wake_words)
 
 
 def close_browser():
-    """Close browsers more reliably"""
-    browsers = ["chrome.exe", "msedge.exe", "firefox.exe", "opera.exe"]
+    """Close browsers reliably"""
+    browsers = ["chrome.exe", "msedge.exe", "firefox.exe"]
     closed = False
     for proc in psutil.process_iter(['name']):
-        if proc.info["name"].lower() in browsers:
+        if proc.info['name'].lower() in browsers:
             try:
                 proc.kill()
                 closed = True
@@ -74,28 +75,29 @@ def close_browser():
 
 
 def process_command(command):
-    """Process commands with better matching"""
+    """Process commands with exact matching"""
     command = command.lower()
+    print(f"Processing command: {command}")  
 
-    if any(word in command for word in ["youtube", "watch video"]):
+    if "open youtube" in command:
         speak("Opening YouTube")
         webbrowser.open("https://www.youtube.com")
 
-    elif any(word in command for word in ["google", "search"]):
+    elif "open google" in command:
         speak("Opening Google")
         webbrowser.open("https://www.google.com")
 
-    elif any(word in command for word in ["close browser", "stop browser"]):
+    elif any(cmd in command for cmd in ["close youtube", "close browser"]):
         if close_browser():
-            speak("All browsers closed successfully")
+            speak("Browser closed successfully")
         else:
             speak("No browsers were open")
 
-    elif any(word in command for word in ["your name", "who are you"]):
-        speak("I am Kairo, your personal voice assistant")
+    elif "your name" in command:
+        speak("I am Kairo, your voice assistant")
 
-    elif any(word in command for word in ["exit", "quit", "goodbye"]):
-        speak("Goodbye! Have a great day!")
+    elif any(cmd in command for cmd in ["exit", "quit", "goodbye"]):
+        speak("Goodbye! Shutting down now.")
         sys.exit(0)
 
     elif "time" in command:
@@ -103,7 +105,7 @@ def process_command(command):
         speak(f"The current time is {current_time}")
 
     else:
-        speak("I didn't understand that command. Try something else.")
+        speak("I didn't understand that command. Please try again.")
 
 
 if __name__ == "__main__":
@@ -113,7 +115,7 @@ if __name__ == "__main__":
     while True:
         try:
             # Listen for wake word
-            audio = listen(prompt="🔈 Say a wake word: Jarvis, Neo, or Kairo...",
+            audio = listen(prompt="🔈 Say Jarvis, Neo, or Kairo to activate...",
                            timeout=None,
                            phrase_time_limit=4)
 
@@ -128,7 +130,7 @@ if __name__ == "__main__":
                         # Command processing loop
                         while True:
                             command_audio = listen(
-                                prompt="🎤 Listening for your command...",
+                                prompt="🎤 Waiting for your command...",
                                 timeout=8,
                                 phrase_time_limit=8)
 
@@ -141,19 +143,25 @@ if __name__ == "__main__":
                                 command = recognizer.recognize_google(
                                     command_audio)
                                 print(f"Command: {command}")
+
+                                # Exit command loop if user says exit
+                                if any(cmd in command.lower() for cmd in ["exit", "quit", "goodbye"]):
+                                    process_command(command)
+                                    break
+
                                 process_command(command)
+
                             except sr.UnknownValueError:
                                 speak("Sorry, I didn't catch that. Please repeat.")
                             except sr.RequestError:
-                                speak(
-                                    "Network error. Please check your internet connection.")
+                                speak("Network error. Please check your internet.")
                                 break
 
                 except sr.UnknownValueError:
                     print("⚠️ Couldn't understand audio")
                 except sr.RequestError as e:
                     print(f"❌ API error: {e}")
-                    speak("Sorry, I'm having trouble connecting to the speech service.")
+                    speak("Sorry, I'm having trouble with the speech service.")
 
         except KeyboardInterrupt:
             print("\n👋 Shutting down...")
@@ -161,5 +169,4 @@ if __name__ == "__main__":
             sys.exit(0)
         except Exception as e:
             print(f"❌ Unexpected error: {e}")
-            speak("Sorry, something went wrong. I'll restart.")
             time.sleep(1)
