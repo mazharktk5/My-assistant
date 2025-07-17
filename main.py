@@ -7,13 +7,21 @@ import time
 
 recognizer = sr.Recognizer()
 engine = pyttsx3.init()
-wake_words = ["kairo", "cairo"]
+
+# Set voice and rate explicitly
+voices = engine.getProperty('voices')
+engine.setProperty('voice', voices[0].id)
+engine.setProperty('rate', 170)
+
+wake_words = ["jarvis", "neo"]
 
 
 def speak(text):
     print(f"🗣️ {text}")
+    engine.stop()
     engine.say(text)
     engine.runAndWait()
+    time.sleep(0.5)  # Add enough time for buffer
 
 
 def listen(prompt="🎤 Listening...", timeout=5, phrase_time_limit=5):
@@ -51,7 +59,6 @@ if __name__ == "__main__":
     speak("Kairo initializing")
 
     while True:
-        # Wait for wake word
         audio = listen(prompt="🎤 Say my name to activate me...",
                        timeout=None, phrase_time_limit=5)
         if audio is None:
@@ -70,7 +77,6 @@ if __name__ == "__main__":
         if is_wake_word(text):
             speak("I am Kairo, how can I help you?")
 
-            # Start continuous command loop
             while True:
                 command_audio = listen(
                     prompt="🎤 Listening for your command...", timeout=10, phrase_time_limit=6)
@@ -89,7 +95,6 @@ if __name__ == "__main__":
                     speak("Can't connect to Google.")
                     break
 
-                # Command actions
                 if "open youtube" in command:
                     speak("Opening YouTube")
                     webbrowser.open("https://www.youtube.com")
