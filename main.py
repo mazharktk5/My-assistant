@@ -161,9 +161,9 @@ if __name__ == "__main__":
                                 break
 
                 except sr.UnknownValueError:
-                    print("⚠️ Couldn't understand audio")
+                    print(" Couldn't understand audio")
                 except sr.RequestError as e:
-                    print(f"❌ API error: {e}")
+                    print(f" API error: {e}")
                     speak("Sorry, I'm having trouble with the speech service.")
 
         except KeyboardInterrupt:
@@ -171,5 +171,5 @@ if __name__ == "__main__":
             speak("Goodbye!")
             sys.exit(0)
         except Exception as e:
-            print(f"❌ Unexpected error: {e}")
+            print(f"Unexpected error: {e}")
             time.sleep(1)
