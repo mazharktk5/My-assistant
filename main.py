@@ -130,7 +130,7 @@ if __name__ == "__main__":
                     if is_wake_word(text):
                         speak("Yes? How can I help you?")
 
-                        # Command processing loop
+                      
                         while True:
                             command_audio = listen(
                                 prompt="🎤 Waiting for your command...",
