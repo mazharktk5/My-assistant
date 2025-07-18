@@ -113,7 +113,7 @@ if __name__ == "__main__":
 
     while True:
         try:
-            # Listen for wake word
+           
             audio = listen(prompt="🔈 Say Jarvis, Neo, or Kairo to activate...",
                            timeout=None,
                            phrase_time_limit=4)
