@@ -86,6 +86,10 @@ def process_command(command):
         speak("Opening Google")
         webbrowser.open("https://www.google.com")
 
+    elif "open github" in command:
+        speak("Opening github")
+        webbrowser.open("https://www.github.com")
+
     elif any(cmd in command for cmd in ["close youtube", "close browser"]):
         if close_browser():
             speak("Browser closed successfully")
@@ -113,7 +117,7 @@ if __name__ == "__main__":
 
     while True:
         try:
-           
+
             audio = listen(prompt="🔈 Say Jarvis, Neo, or Kairo to activate...",
                            timeout=None,
                            phrase_time_limit=4)
