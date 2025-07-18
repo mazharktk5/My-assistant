@@ -25,7 +25,7 @@ def speak(text):
     """Reliable speaking function"""
     print(f"🗣️ {text}")
     try:
-        # Clear any pending speech commands
+       
         engine.stop()
         engine.say(text)
         engine.runAndWait()
