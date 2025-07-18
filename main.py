@@ -147,7 +147,7 @@ if __name__ == "__main__":
                                     command_audio)
                                 print(f"Command: {command}")
 
-                                # Exit command loop if user says exit
+                                
                                 if any(cmd in command.lower() for cmd in ["exit", "quit", "goodbye"]):
                                     process_command(command)
                                     break
